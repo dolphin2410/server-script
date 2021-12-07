@@ -46,7 +46,7 @@ pub fn debug_port() -> i32 {
 }
 
 pub fn load_config() -> Configuration {
-    let path = Path::new("config.json");
+    let path = Path::new("server.conf.json");
 
     let mut created = false;
 
