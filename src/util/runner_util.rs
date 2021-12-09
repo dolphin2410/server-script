@@ -3,6 +3,7 @@ use crate::config::Configuration;
 use crate::java_util::jdk9_up;
 use crate::util::logger;
 
+/// Generates the default running arguments
 pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<String> {
     let mut default = vec![
         format!("-Xmx{}G", config.memory).as_str(),

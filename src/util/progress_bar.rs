@@ -1,40 +1,53 @@
 use std::cmp::max;
+use ansi_term::Colour;
 use crate::util::logger;
 
+/// ProgressBar struct
 pub struct ProgressBar {
-    total: f32,
-    finished: f32,
-    len: i32
+    total: i32,
+    finished: i32,
+    len: i32,
 }
 
 impl ProgressBar {
-    pub fn new(total: f32) -> ProgressBar {
-        ProgressBar { total, finished: 0.0, len: 50 }
+
+    /// Create a new ProgressBar
+    pub fn new(total: i32) -> ProgressBar {
+        ProgressBar { total, finished: 0, len: 50 }
     }
 
-    pub fn set(&mut self, new: f32) {
+    /// Set the value of the ProgressBar
+    pub fn set(&mut self, new: i32) {
         self.finished = new;
     }
 
-    pub fn add(&mut self, plus: f32) {
+    /// Add the value of the ProgressBar
+    pub fn add(&mut self, plus: i32) {
         self.finished += plus;
     }
 
+    /// Set the value of the ProgressBar to 0
     pub fn reset(&mut self) {
-        self.finished = 0.0;
+        self.finished = 0;
     }
 
-    pub fn subtract(&mut self, minus: f32) {
+    /// Subtracts the value from the ProgressBar
+    pub fn subtract(&mut self, minus: i32) {
         self.finished -= minus
     }
 
+    /// Prints out the ProgressBar. Carriage return will be used.
     pub fn print(&mut self) {
-        let ratio = self.finished / self.total;
+        let ratio = (self.finished as f32) / (self.total as f32);
 
-        let finished_bar = (ratio * (self.len as f32)).floor() as i32;
+        let finished_bar = (ratio * (self.len as f32)) as i32;
 
-        let str = format!("\r[{}>{}] {}%     ", "=".repeat(max(finished_bar as usize, 1) - 1), " ".repeat((self.len - finished_bar) as usize), ratio * 100.0);
-
-        logger::log_raw(str.as_str())
+        print!(
+            "\r{}",
+            Colour::Cyan.paint(format!(
+                "[{}{}] {}% ",
+                "#".repeat(max(finished_bar as usize, 0)), "-".repeat((self.len - finished_bar) as usize),
+                (ratio * 100.0) as i32))
+        );
     }
 }

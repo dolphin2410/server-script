@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use serde_derive::{Deserialize, Serialize};
 
+/// A struct of the server-script configurations. Serde will parse the configuration file with some default fields.
 #[derive(Deserialize, Serialize)]
 pub struct Configuration {
     #[serde(default = "default_server")]
@@ -30,21 +31,22 @@ pub struct Configuration {
     pub jvm_args: Vec<String>,
 }
 
-// The default server url
+/// The default server url
 pub fn default_server() -> String {
     String::from("https://clip.aroxu.me/download?mc_version=1.18")
 }
 
-// The default memory in Gigabytes
+/// The default memory in Gigabytes
 pub fn memory() -> i32 {
     1
 }
 
-// The default debug port
+/// The default debug port
 pub fn debug_port() -> i32 {
     5005
 }
 
+/// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.
 pub fn load_config() -> Configuration {
     let path = Path::new("server.conf.json");
 

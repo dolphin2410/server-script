@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 target/
 .idea/
-=======
-# Intellij
-.idea/
-
-# Servers
-.paper/
->>>>>>> b5f9ed4c68977ee3af2124bcf7ca9e4e05e06312
+builder.bat
+debug/

@@ -7,6 +7,7 @@ use reqwest::Client;
 use futures::StreamExt;
 use crate::util::progress_bar::ProgressBar;
 
+/// Downloads the jar from the configuration URL
 pub async fn download_server(config: &Configuration, target: &str) {
     let server = &config.server;
 
@@ -22,9 +23,9 @@ pub async fn download_server(config: &Configuration, target: &str) {
 
     let mut file = File::create(Path::new(target)).expect("Error");
 
-    let mut downloaded: i32 = 0;
+    let mut downloaded = 0;
 
-    let mut bar = ProgressBar::new(max_size as f32);
+    let mut bar = ProgressBar::new(max_size);
 
     while let Some(item) = stream.next().await {
         let chunk = item.or(Err(format!("Error while downloading file"))).expect("Error");
@@ -32,9 +33,10 @@ pub async fn download_server(config: &Configuration, target: &str) {
             .or(Err(format!("Error while writing to file"))).expect("Error");
         let new = min(downloaded + chunk.len() as i32, max_size);
         downloaded = new;
-        let _ = &bar.set(downloaded as f32);
+        let _ = &bar.set(downloaded);
         let _ = &bar.print();
     }
 
+    // Exit Carriage Return
     println!();
 }
