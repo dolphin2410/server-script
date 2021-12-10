@@ -1,0 +1,43 @@
+on: [push, pull_request]
+
+name: Build
+
+jobs:
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: cargo build --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows
+          path: target/release/server-script.exe
+
+  mac:
+    name: MacOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: cargo build --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: darwin
+          path: target/release/server-script
+
+  ubuntu:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: cargo build --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: target/release/server-script
