@@ -1,6 +1,5 @@
 use std::cmp::max;
 use ansi_term::Colour;
-use crate::util::logger;
 
 /// ProgressBar struct
 pub struct ProgressBar {
@@ -49,5 +48,10 @@ impl ProgressBar {
                 "#".repeat(max(finished_bar as usize, 0)), "-".repeat((self.len - finished_bar) as usize),
                 (ratio * 100.0) as i32))
         );
+    }
+
+    pub fn clear_text(&mut self) {
+        print!("\r{}", " ".repeat((8 + self.len) as usize));
+        print!("\r");
     }
 }

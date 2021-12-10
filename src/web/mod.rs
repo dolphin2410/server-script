@@ -38,5 +38,5 @@ pub async fn download_server(config: &Configuration, target: &str) {
     }
 
     // Exit Carriage Return
-    println!();
+    bar.clear_text()
 }

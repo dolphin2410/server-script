@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::fs;
 use std::fs::File;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// A struct of the server-script configurations. Serde will parse the configuration file with some default fields.
 #[derive(Deserialize, Serialize)]
