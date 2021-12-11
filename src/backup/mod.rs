@@ -7,8 +7,9 @@ use flate2::Compression;
 use crate::util::logger;
 
 pub fn backup() {
+    let _ = fs::create_dir(".backup");
     let date = Utc::now().format("%Y%m%d-%H%M%S");
-    let tar_gz = File::create(format!("{}.tar.gz", date)).expect("Failed to create tarball");
+    let tar_gz = File::create(format!(".backup/{}.tar.gz", date)).expect("Failed to create tarball");
     let enc = GzEncoder::new(tar_gz, Compression::default());
     let mut tar = tar::Builder::new(enc);
 
@@ -16,7 +17,7 @@ pub fn backup() {
     for entry in files {
         let file = entry.unwrap().file_name();
         let file_name = (&file).to_str().unwrap();
-        if file_name != ".backup" && file_name != "cache" {
+        if file_name == ".backup" || file_name == "cache" {
             continue;
         }
         tar.append_path(Path::new(file_name)).expect("Failed to add the directory to the backup archive");

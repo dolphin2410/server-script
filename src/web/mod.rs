@@ -40,3 +40,22 @@ pub async fn download_server(config: &Configuration, target: &str) {
     // Exit Carriage Return
     bar.clear_text()
 }
+
+/// Downloads the file from the url and saves it to the target
+pub async fn download(url: &str, target: &str) {
+    let response = Client::new()
+        .get(url)
+        .send()
+        .await
+        .expect("Error");
+
+    let mut file = File::create(target).expect("Error occurred while creating file");
+
+    let mut stream = response.bytes_stream();
+
+    while let Some(item) = stream.next().await {
+        let chunk = item.or(Err(format!("Error while downloading file"))).expect("Error");
+        file.write(&chunk)
+            .or(Err(format!("Error while writing to file"))).expect("Error");
+    }
+}

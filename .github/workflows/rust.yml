@@ -10,6 +10,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: build
         run: cargo build --release
+      - name: Upload Target
+        uses: actions/upload-artifact@v2
+        with:
+          name: target
+          path: target
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -17,10 +22,15 @@ jobs:
           path: target/release/server-script.exe
 
   mac:
+    needs: [windows]
     name: MacOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: target
+          path: target
       - name: build
         run: cargo build --release
       - name: Upload Artifact
@@ -30,10 +40,15 @@ jobs:
           path: target/release/server-script
 
   ubuntu:
+    needs: [windows, mac]
     name: Linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: target
+          path: target
       - name: build
         run: cargo build --release
       - name: Upload Artifact
@@ -41,3 +56,42 @@ jobs:
         with:
           name: linux
           path: target/release/server-script
+
+#  upload:
+#    name: Upload Artifacts
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: windows
+#          path: output/windows/server-script.exe
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: linux
+#          path: output/linux/server-script
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: darwin
+#          path: output/windows/server-script
+#
+#      - uses: actions/create-release@v1
+#        id: create_release
+#        with:
+#          draft: false
+#          prerelease: false
+#          release_name: ${{ github.ref }}
+#          tag_name: ${{ github.ref }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: output/windows/server-script.exe
+#          asset_name: my-artifact
+#          asset_content_type: application/zip

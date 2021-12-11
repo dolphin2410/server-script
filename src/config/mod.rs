@@ -24,7 +24,7 @@ pub struct Configuration {
     #[serde(default = "memory")]
     pub memory: i32,
 
-    #[serde(default = "Vec::new")]
+    #[serde(default = "default_plugins")]
     pub plugins: Vec<String>,
 
     #[serde(default = "Vec::new")]
@@ -44,6 +44,13 @@ pub fn memory() -> i32 {
 /// The default debug port
 pub fn debug_port() -> i32 {
     5005
+}
+
+/// The default plugins
+pub fn default_plugins() -> Vec<String> {
+    vec![
+        "https://github.com/monun/auto-reloader/releases/latest/download/AutoReloader.jar"
+    ].into_iter().map(String::from).collect()
 }
 
 /// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.
