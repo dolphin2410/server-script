@@ -9,13 +9,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: build
-        run: cargo build --release
-      - name: Upload Target
-        uses: actions/upload-artifact@v2
+      - uses: actions/download-artifact@v2
         with:
           name: target
           path: target
+      - name: build
+        run: cargo build --release
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
@@ -27,12 +26,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - name: build
+        run: cargo build --release
+      - name: Upload Target
+        uses: actions/upload-artifact@v2
         with:
           name: target
           path: target
-      - name: build
-        run: cargo build --release
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
