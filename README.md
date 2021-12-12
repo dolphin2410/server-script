@@ -1,7 +1,7 @@
 # server-script
 ## 마인크래프트 서버 쉽게 실행하기
 
-### 아직 개발 중에 있습니다...
+[![Build](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml/badge.svg)](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml)
 
 ### 장점
 - 다양한 플랫폼 지원
