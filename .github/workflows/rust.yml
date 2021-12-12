@@ -4,6 +4,7 @@ name: Build
 
 jobs:
   windows:
+    needs: [ mac, ubuntu ]
     name: Windows
     runs-on: windows-latest
     steps:
@@ -22,7 +23,6 @@ jobs:
           path: target/release/server-script.exe
 
   mac:
-    needs: [windows]
     name: MacOS
     runs-on: macos-latest
     steps:
@@ -40,7 +40,7 @@ jobs:
           path: target/release/server-script
 
   ubuntu:
-    needs: [windows, mac]
+    needs: [mac]
     name: Linux
     runs-on: ubuntu-latest
     steps:
