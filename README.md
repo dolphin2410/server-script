@@ -8,6 +8,7 @@
 - 메모리 안전성
 - 빠른 실행 속도
 - 비동기적 실행으로 효율적인 작업
+- [McSR](https://github.com/dolphin2410/McSR) 지원
 
 ### 사용하기
 1. [Releases](https://github.com/dolphin2410/server-script/releases) 에서 원하는 아키텍쳐의 빌드 버전을 다운로드 받습니다.
