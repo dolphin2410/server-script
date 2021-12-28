@@ -1,7 +1,7 @@
 use std::path::Path;
-use std::fs;
-use std::fs::File;
 use serde::{Deserialize, Serialize};
+use tokio::fs;
+use tokio::fs::File;
 
 /// A struct of the server-script configurations. Serde will parse the configuration file with some default fields.
 #[derive(Deserialize, Serialize)]
@@ -54,32 +54,24 @@ pub fn default_plugins() -> Vec<String> {
 }
 
 /// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.
-pub fn load_config() -> Configuration {
+pub async fn load_config() -> Result<Configuration, std::io::Error> {
     let path = Path::new("server.conf.json");
-
-    let mut created = false;
 
     // Create file if doesn't exists. Defaults to an empty object
     if !path.exists() {
-        let _ = File::create(&path);
-        let _ = fs::write(&path, "{}");
-        created = true
+        let _ = File::create(&path).await?;
+        fs::write(&path, "{}").await?;
     }
 
     // Parse the configurations
     let data = serde_json::from_str::<Configuration>(
-        fs::read_to_string(&path)
-            .expect("Failed to read configuration")
+        fs::read_to_string(&path).await?
             .as_str()
-    )
-        .expect("Failed to parse JSON");
-
+    )?;
 
     // If a new file was created, set the default values
-    if created {
-        let data_str = serde_json::to_string_pretty::<Configuration>(&data).expect("Failed to serialize configuration");
-        let _ = fs::write(path, data_str);
-    }
+    let data_str = serde_json::to_string_pretty::<Configuration>(&data)?;
+    fs::write(path, data_str).await?;
 
-    data
+    Ok(data)
 }

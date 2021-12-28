@@ -3,33 +3,40 @@ pub mod web;
 pub mod util;
 pub mod backup;
 
-use std::fs;
 use std::path::Path;
-use futures::executor;
 use std::process::{Command, Stdio};
+use tokio::fs;
+use tokio::runtime::Builder;
 use crate::util::{java_util, logger, runner_util};
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), std::io::Error> {
     // Loads the config
-    let configuration = config::load_config();
+    let configuration = config::load_config().await?;
 
     let jarfile = "server.jar";
+    let thread = Builder::new_current_thread().enable_all().build().unwrap();
 
     // Download the jar
-    executor::block_on(web::download_server(&configuration, jarfile));
+    thread.spawn(async move {
+        web::download_server(&configuration, jarfile).await.unwrap();
+        "Returned"
+    }).await?;
+
+    let configuration = config::load_config().await?;
+
 
     let executable = java_util::find_executable();
 
     let args = runner_util::default_args(jarfile, &configuration);
 
     loop {
-        let _ = fs::create_dir(Path::new("plugins"));
+        fs::create_dir(Path::new("plugins")).await?;
 
         // Download plugins
-        for plugin in &configuration.plugins {
+        for plugin in configuration.plugins.to_vec() {
             let file_name = plugin.split("/").last().unwrap();
-            executor::block_on(web::download(plugin.as_str(),format!("plugins/{}", file_name).as_str()));
+            thread.spawn(web::download(plugin.clone(),format!("plugins/{}", file_name))).await??;
         }
 
         // Execute the program
@@ -42,7 +49,7 @@ async fn main() {
 
         if configuration.backup {
             logger::log("Starting Backup...");
-            backup::backup();
+            backup::backup().await?;
         }
 
         if !&configuration.restart {
@@ -53,4 +60,6 @@ async fn main() {
     }
 
     logger::log("Exiting...");
+
+    Ok(())
 }
