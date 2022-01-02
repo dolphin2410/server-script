@@ -127,6 +127,7 @@ jobs:
           release_name: Release ${{ steps.version.outputs.version }}
           draft: false
           prerelease: false
+        continue-on-error: true
 
       # Upload Windows Asset
       - name: Upload Release Asset (Windows)
@@ -138,6 +139,7 @@ jobs:
           asset_path: output/windows/server-script/server-script.exe
           asset_name: server-script-windows.exe
           asset_content_type: application/vnd.microsoft.portable-executable
+        continue-on-error: true
       
       # Upload Linux Assets
       - name: Upload Release Asset (Linux)
@@ -149,6 +151,7 @@ jobs:
           asset_path: output/linux/server-script/server-script
           asset_name: server-script-linux
           asset_content_type: application/x-binary
+        continue-on-error: true
 
       # Upload Darwin assets
       - name: Upload Release Asset (Darwin)
@@ -160,3 +163,4 @@ jobs:
           asset_path: output/darwin/server-script/server-script
           asset_name: server-script-darwin
           asset_content_type: application/x-binary
+        continue-on-error: true
