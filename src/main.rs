@@ -6,6 +6,9 @@ use server_script::{backup, web, config, cli, util::{java_util, logger, runner_u
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
 
+    logger::log("Running server-script v1.0.0");
+    logger::log("Report bugs here: https://github.com/dolphin2410/server-script");
+
     let cli = cli::parse();
 
     // Loads the config
