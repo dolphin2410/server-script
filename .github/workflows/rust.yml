@@ -42,20 +42,23 @@ jobs:
           name: linux
           path: target/release/server-script
 
-#  upload:
-#    name: Upload Artifacts
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: actions/download-artifact@v2
-#        with:
-#          name: windows
-#          path: output/windows/server-script.exe
-#      - uses: actions/download-artifact@v2
-#        with:
-#          name: linux
-#          path: output/linux/server-script
-#      - uses: actions/download-artifact@v2
-#        with:
-#          name: darwin
-#          path: output/windows/server-script
+ upload:
+   name: Upload Artifacts
+   runs-on: ubuntu-latest
+   steps:
+    - uses: actions/checkout@v2
+    - uses: actions/download-artifact@v2
+      with:
+        name: windows
+        path: output/windows/server-script.exe
+    - uses: actions/download-artifact@v2
+      with:
+        name: linux
+        path: output/linux/server-script
+    - uses: actions/download-artifact@v2
+      with:
+        name: darwin
+        path: output/mac/server-script
+    - run: echo $(grep -Po '(?<=version = ").+(?=")' ../Cargo.toml)
+    
+    

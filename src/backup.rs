@@ -1,5 +1,5 @@
 use std::path::Path;
-use chrono::Utc;
+use chrono::Local;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 use tokio::fs;
@@ -7,8 +7,12 @@ use tokio::fs::File;
 use crate::util::logger;
 
 pub async fn backup() -> Result<(), std::io::Error> {
-    fs::create_dir(".backup").await?;
-    let date = Utc::now().format("%Y%m%d-%H%M%S");
+    let backup_dir_path = Path::new(".backup");
+    if !backup_dir_path.exists() {
+        fs::create_dir(backup_dir_path).await?;
+    }
+
+    let date = Local::now().format("%Y%m%d-%H%M%S");
     let tar_gz = File::create(format!(".backup/{}.tar.gz", date)).await?;
     let enc = GzEncoder::new(tar_gz.into_std().await, Compression::default());
     let mut tar = tar::Builder::new(enc);

@@ -1,39 +1,64 @@
 use std::cmp::min;
 use std::path::Path;
-use reqwest::Client;
-use tokio::fs::File;
+use futures::FutureExt;
+use futures::future::BoxFuture;
+use reqwest::{Client, Response};
+use tokio::fs::{File, self};
 use tokio::io::AsyncWriteExt;
 use futures::stream::StreamExt;
 use crate::config::Configuration;
 use crate::util::progress_bar::ProgressBar;
 
+pub fn request(url: &str) -> BoxFuture<'_, (Response, i32)> {
+    async move {
+        let response = Client::new()
+        .get(url)
+        .send()
+        .await
+        .unwrap();
+    
+    if let Some(size) = response.content_length() {
+        (response, size as i32)
+    } else {
+        request(url).await
+     }
+    }.boxed()
+}
+
 /// Downloads the jar from the configuration URL
 pub async fn download_server(config: &Configuration, target: &str) -> Result<(), std::io::Error> {
     let server = &config.server;
 
-    let response = Client::new()
-        .get(server)
-        .send()
-        .await
-        .expect("Error");
-
-    let max_size = response.content_length().unwrap() as i32;
+    let (response, max_size) = request(server).await;
 
     let mut stream = response.bytes_stream();
 
-    let mut file = File::create(Path::new(target)).await?;
+    let temp_dir = Path::new(".temp");
+    if !temp_dir.exists() {
+        fs::create_dir(temp_dir).await?;
+    }
+
+    let target_file = Path::new(target);
+
+    let path_buf = temp_dir.join(target_file.file_name().unwrap());
+
+    let temp_target_file = Path::new(path_buf.as_os_str());
+
+    let mut file = File::create(temp_target_file).await?;
 
     let mut downloaded = 0;
 
     let mut bar = ProgressBar::new(max_size);
 
     while let Some(item) = stream.next().await {
-        let chunk = item.or(Err(format!("Error while downloading file"))).expect("Error");
+        let chunk = item.unwrap();
         let _ = file.write(&chunk).await?;
         downloaded = min(downloaded + chunk.len() as i32, max_size);
-        let _ = &bar.set(downloaded);
-        let _ = &bar.print();
+        bar.set(downloaded);
+        bar.print();
     }
+
+    let _ = fs::copy(temp_target_file, target_file).await.unwrap();
 
     // Exit Carriage Return
     bar.clear_text();

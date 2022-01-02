@@ -3,14 +3,12 @@
 
 [![Build](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml/badge.svg)](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml)
 
-### 장점
-- 다양한 플랫폼 지원
+### 주요 기능
 - 메모리 안전성
 - 빠른 실행 속도
-- 비동기적 실행으로 효율적인 작업
-- [McSR](https://github.com/dolphin2410/McSR) 지원
+- CLI 및 JSON 기반 설정
 
-### 사용하기
+### 설정하기
 1. [Releases](https://github.com/dolphin2410/server-script/releases) 에서 원하는 아키텍쳐의 빌드 버전을 다운로드 받습니다.
 2. 다운로드한 `.zip` 아카이브를 압축 해제하고, 서버 실행기를 실행시킵니다.
 3. 첫 실행 후 생기는 `server.conf.json` 파일을 수정해 원하는 서버를 설정합니다.
@@ -21,6 +19,6 @@
 * [aroxu/server-script](https://github.com/aroxu/server-script) 와 같이 바이너리 형태로 배포합니다.
 
 ### 다른 구현체들
+server-script: [monun](https://github.com/monun/server-script/)
 Go언어로 제작된 서버 실행기: [aroxu](https://github.com/aroxu/server-script)
-
 Paper 전용 서버 실행기: [monun](https://github.com/monun/server-script/tree/paper)

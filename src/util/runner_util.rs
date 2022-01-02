@@ -1,6 +1,6 @@
 use ansi_term::Colour;
 use crate::config::Configuration;
-use crate::java_util::jdk9_up;
+use crate::util::java_util::jdk9_up;
 use crate::util::logger;
 
 /// Generates the default running arguments

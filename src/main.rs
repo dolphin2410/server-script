@@ -1,42 +1,41 @@
-pub mod config;
-pub mod web;
-pub mod util;
-pub mod backup;
-
 use std::path::Path;
 use std::process::{Command, Stdio};
 use tokio::fs;
-use tokio::runtime::Builder;
-use crate::util::{java_util, logger, runner_util};
+use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+
+    let cli = cli::parse();
+
     // Loads the config
-    let configuration = config::load_config().await?;
+    let mut configuration = config::load_config().await?;
+
+    configuration.apply(&cli);
 
     let jarfile = "server.jar";
-    let thread = Builder::new_current_thread().enable_all().build().unwrap();
 
-    // Download the jar
-    thread.spawn(async move {
+    let jar_path = Path::new(jarfile);
+
+    if !jar_path.exists() || !cli.no_update {
+        // Download the jar
         web::download_server(&configuration, jarfile).await.unwrap();
-        "Returned"
-    }).await?;
-
-    let configuration = config::load_config().await?;
-
+    }
 
     let executable = java_util::find_executable();
 
     let args = runner_util::default_args(jarfile, &configuration);
 
     loop {
-        fs::create_dir(Path::new("plugins")).await?;
+        let plugins_path = Path::new("plugins");
+        if !plugins_path.exists() {
+            fs::create_dir(plugins_path).await?;
+        }
 
         // Download plugins
         for plugin in configuration.plugins.to_vec() {
             let file_name = plugin.split("/").last().unwrap();
-            thread.spawn(web::download(plugin.clone(),format!("plugins/{}", file_name))).await??;
+            web::download(plugin.clone(),format!("plugins/{}", file_name)).await?;
         }
 
         // Execute the program
@@ -45,7 +44,6 @@ async fn main() -> Result<(), std::io::Error> {
             .stdout(Stdio::inherit())
             .spawn()
             .unwrap().wait().unwrap();
-
 
         if configuration.backup {
             logger::log("Starting Backup...");
