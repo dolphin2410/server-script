@@ -1,4 +1,4 @@
-use ansi_term::Colour;
+use termcolor::Color;
 use crate::config::Configuration;
 use crate::util::java_util::jdk9_up;
 use crate::util::logger;
@@ -27,7 +27,7 @@ pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<Stri
 
     default.append(
         &mut if config.memory < 12 {
-            logger::log(format!("{}", Colour::Purple.paint("Using Aikar's standard memory options")).as_str());
+            logger::log("Using Aikar's standard memory options", Some(Color::Magenta), None);
             vec![
                 "-XX:G1NewSizePercent=30",
                 "-XX:G1MaxNewSizePercent=40",
@@ -36,7 +36,7 @@ pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<Stri
                 "-XX:InitiatingHeapOccupancyPercent=15"
             ]
         } else {
-            logger::log(format!("{}", Colour::Purple.paint("Using Aikar's advanced memory options")).as_str());
+            logger::log("Using Aikar's advanced memory options", Some(Color::Magenta), None);
             vec![
                 "-XX:G1NewSizePercent=40",
                 "-XX:G1MaxNewSizePercent=50",
@@ -45,7 +45,10 @@ pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<Stri
                 "-XX:InitiatingHeapOccupancyPercent=20"
             ]
         }.into_iter().map(String::from).collect::<Vec<String>>()
+
     );
+
+    println!("Launching Server...");
 
     if config.debug {
         default.append(

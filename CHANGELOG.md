@@ -1,3 +1,13 @@
+# 2.0.0
+- Reqwest -> Hyper-rs
+- Fixed missing ContentLength response [Reqwest]
+- ANSI -> Windows Console API
+- Enhanced Logger System
+- Configuration BugFix
+- Enhanced Download Progress Bar
+- Title Bar for Windows Executable
+- Stability Test
+
 # 1.0.0
 - Stability test complete!
 

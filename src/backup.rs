@@ -29,7 +29,7 @@ pub async fn backup() -> Result<(), std::io::Error> {
 
     tar.finish().expect("Error occurred while finishing backup");
 
-    logger::log("Backup Complete!");
+    logger::log("Backup Complete!", None, None);
 
     Ok(())
 }

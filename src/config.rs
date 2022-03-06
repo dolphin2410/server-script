@@ -23,6 +23,9 @@ pub struct Configuration {
     #[serde(default = "bool::default")]
     pub restart: bool,
 
+    #[serde(default = "bool::default")]
+    pub no_update: bool,
+
     #[serde(default = "memory")]
     pub memory: i32,
 
@@ -36,10 +39,17 @@ pub struct Configuration {
 impl Configuration {
     pub fn apply(&mut self, cli: &Cli) {
         self.server = cli.server.clone();
-        self.debug = cli.debug;
+        if cli.debug {
+            self.debug = cli.debug;
+        }
         self.debug_port = cli.debug_port;
-        self.backup = cli.backup;
+        if cli.backup {
+            self.backup = cli.backup;
+        }
         self.memory = cli.memory;
+        if cli.no_update {
+            self.no_update = cli.no_update;
+        }
     }
 }
 

@@ -1,13 +1,32 @@
 use std::path::Path;
 use std::process::{Command, Stdio};
+use termcolor::Color;
 use tokio::fs;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
 
 #[tokio::main]
-async fn main() -> Result<(), std::io::Error> {
+async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
-    logger::log("Running server-script v1.0.0");
-    logger::log("Report bugs here: https://github.com/dolphin2410/server-script");
+    if cfg!(target_os = "windows") {
+        use std::ptr;
+        use winapi::um::wincon::GetConsoleWindow;
+        use winapi::um::winuser::SetWindowTextA;
+        use std::ffi::CString;
+
+        let window = unsafe { GetConsoleWindow() };
+        if window != ptr::null_mut() {
+            unsafe {
+                let cstr = CString::new("Server Script").unwrap();
+                SetWindowTextA(window, cstr.as_ptr());
+                
+            }
+        }
+    }
+
+    print!("[Logger] ");
+    logger::log("Running server-script v2.0.0", Some(Color::Cyan), None);
+    print!("[Logger] ");
+    logger::log("Report bugs here: https://github.com/dolphin2410/server-script", Some(Color::Cyan), None);
 
     let cli = cli::parse();
 
@@ -20,7 +39,7 @@ async fn main() -> Result<(), std::io::Error> {
 
     let jar_path = Path::new(jarfile);
 
-    if !jar_path.exists() || !cli.no_update {
+    if !jar_path.exists() || !configuration.no_update {
         // Download the jar
         web::download_server(&configuration, jarfile).await.unwrap();
     }
@@ -49,7 +68,7 @@ async fn main() -> Result<(), std::io::Error> {
             .unwrap().wait().unwrap();
 
         if configuration.backup {
-            logger::log("Starting Backup...");
+            logger::log("Starting Backup...", None, None);
             backup::backup().await?;
         }
 
@@ -57,10 +76,10 @@ async fn main() -> Result<(), std::io::Error> {
             break;
         }
 
-        logger::log("Restarting...");
+        logger::log("Restarting...", None, None);
     }
 
-    logger::log("Exiting...");
+    logger::log("Exiting...", None, None);
 
     Ok(())
 }
