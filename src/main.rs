@@ -21,6 +21,11 @@ fn windows() {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
+fn windows() {
+    
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
