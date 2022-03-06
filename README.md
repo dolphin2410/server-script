@@ -3,12 +3,9 @@
 
 [![Build](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml/badge.svg)](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml)
 
-### 주요 기능
-- 메모리 안전성
-- 빠른 실행 속도
-- CLI 및 JSON 기반 설정
-
 ### 설정하기
+- CLI 및 JSON 기반 설정을 지원합니다
+
 1. [Releases](https://github.com/dolphin2410/server-script/releases) 에서 원하는 아키텍쳐의 빌드 버전을 다운로드 받습니다.
 
 2. `server.conf.json` 파일을 이용해 서버를 설정합니다. ( 필수 x )
@@ -32,7 +29,8 @@
     ],
     "jvm_args": [
         "--Dcom.mojang.xxx=true"
-    ]
+    ],
+    "no_update": true
 }
 ```
 
