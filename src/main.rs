@@ -4,23 +4,28 @@ use termcolor::Color;
 use tokio::fs;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
 
+#[cfg(target_os = "windows")]
+fn windows() {
+    use std::ptr;
+    use winapi::um::wincon::GetConsoleWindow;
+    use winapi::um::winuser::SetWindowTextA;
+    use std::ffi::CString;
+
+    let window = unsafe { GetConsoleWindow() };
+    if window != ptr::null_mut() {
+        unsafe {
+            let cstr = CString::new("Server Script").unwrap();
+            SetWindowTextA(window, cstr.as_ptr());
+            
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     if cfg!(target_os = "windows") {
-        use std::ptr;
-        use winapi::um::wincon::GetConsoleWindow;
-        use winapi::um::winuser::SetWindowTextA;
-        use std::ffi::CString;
-
-        let window = unsafe { GetConsoleWindow() };
-        if window != ptr::null_mut() {
-            unsafe {
-                let cstr = CString::new("Server Script").unwrap();
-                SetWindowTextA(window, cstr.as_ptr());
-                
-            }
-        }
+        windows()
     }
 
     print!("[Logger] ");
