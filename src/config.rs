@@ -54,7 +54,7 @@ impl Configuration {
 }
 
 pub fn default_version() -> String {
-    String::from("1.18.1")
+    String::from("1.18.2")
 }
 
 /// The default server url

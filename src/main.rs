@@ -23,7 +23,7 @@ fn windows() {
 
 #[cfg(not(target_os = "windows"))]
 fn windows() {
-    
+
 }
 
 #[tokio::main]
@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 
     print!("[Logger] ");
-    logger::log("Running server-script v2.0.0", Some(Color::Cyan), None);
+    logger::log("Running server-script v2.0.1", Some(Color::Cyan), None);
     print!("[Logger] ");
     logger::log("Report bugs here: https://github.com/dolphin2410/server-script", Some(Color::Cyan), None);
 

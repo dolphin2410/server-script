@@ -1,3 +1,6 @@
+# 2.0.1
+- Default Paper Version => 1.18.2
+
 # 2.0.0
 - Reqwest -> Hyper-rs
 - Fixed missing ContentLength response [Reqwest]
