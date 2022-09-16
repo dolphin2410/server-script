@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Loads the config
     let mut configuration = config::load_config().await?;
 
-    configuration.apply(&cli);
+    configuration.apply(&cli).await;
 
     let jarfile = "server.jar";
 

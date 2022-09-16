@@ -22,7 +22,10 @@ pub struct Cli {
     pub memory: i32,
 
     #[clap(long)]
-    pub no_update: bool
+    pub no_update: bool,
+
+    #[clap(long)]
+    pub save_config: bool
 }
 
 pub fn parse() -> Cli {

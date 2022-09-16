@@ -6,7 +6,7 @@ use tokio::fs::File;
 use crate::cli::Cli;
 
 /// A struct of the server-script configurations. Serde will parse the configuration file with some default fields.
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Configuration {
     #[serde(default = "default_server")]
     pub server: String,
@@ -37,7 +37,7 @@ pub struct Configuration {
 }
 
 impl Configuration {
-    pub fn apply(&mut self, cli: &Cli) {
+    pub async fn apply(&mut self, cli: &Cli) {
         self.server = cli.server.clone();
         if cli.debug {
             self.debug = cli.debug;
@@ -50,16 +50,20 @@ impl Configuration {
         if cli.no_update {
             self.no_update = cli.no_update;
         }
+
+        if cli.save_config {
+            save_config(self.clone()).await.unwrap();
+        }
     }
 }
 
 pub fn default_version() -> String {
-    String::from("1.18.2")
+    String::from("1.19.2")
 }
 
 /// The default server url
 pub fn default_server() -> String {
-    format!("https://clip.aroxu.me/download?mc_version={}", default_version())
+    format!("paperapi://{}", default_version())
 }
 
 /// The default memory in Gigabytes
@@ -74,9 +78,7 @@ pub fn debug_port() -> i32 {
 
 /// The default plugins
 pub fn default_plugins() -> Vec<String> {
-    vec![
-        "https://github.com/monun/auto-reloader/releases/latest/download/AutoReloader.jar"
-    ].into_iter().map(String::from).collect()
+    Vec::<String>::new().into_iter().map(String::from).collect()
 }
 
 /// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.
@@ -100,4 +102,17 @@ pub async fn load_config() -> Result<Configuration, std::io::Error> {
     fs::write(path, data_str).await?;
 
     Ok(data)
+}
+
+pub async fn save_config(config: Configuration) -> Result<(), std::io::Error> {
+    let path = Path::new("server.conf.json");
+    if !path.exists() {
+        let _ = File::create(&path).await?;
+        fs::write(&path, "{}").await?;
+    }
+
+    let data_str = serde_json::to_string_pretty(&config)?;
+    fs::write(path, data_str).await?;
+
+    Ok(())
 }

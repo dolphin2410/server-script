@@ -16,7 +16,7 @@
 다음과 비슷하게 설정하세요.
 ```json
 {
-    "server": "http://clip.aroxu.me/download?mc_version=1.18.1",
+    "server": "http://clip.aroxu.me/download?mc_version=1.19.2",
     "debug": true,
     "debug_port": 8080,
     "backup": true,
@@ -38,7 +38,7 @@
 ***`server.conf.json`에서 설정하지 않고 CLI에서 직접 설정 및 실행할 수 있습니다. `server.conf.json`에 중복되는 설정이 있을때, 갈아엎습니다***
 - 서버 URL
 ```bash
-server-script.exe --server http://clip.aroxu.me/download?mc_version=1.18.1 # 서버 jar URL 설정
+server-script.exe --server http://clip.aroxu.me/download?mc_version=1.19.2 # 서버 jar URL 설정
 ```
 - 메모리
 ```bash
@@ -59,6 +59,11 @@ server-script.exe --restart # 서버 종료 후 자동 재시작
 - no-update
 ```bash
 server-script.exe --no-update # 서버가 존재하지 않는 경우에만 다운로드 받기 (매번 다운로드 하지 않는다)
+```
+
+- save-config
+```bash
+server-script.exe --save-config # cli 설정을 server.conf.json 파일에 저장
 ```
 
 ### Thanks to

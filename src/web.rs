@@ -1,4 +1,6 @@
+use std::error::Error;
 use std::path::Path;
+use bytes::{BytesMut, Buf, BufMut};
 use follow_redirects::ClientExt;
 use hyper::Client;
 use hyper::body::HttpBody;
@@ -7,12 +9,13 @@ use hyper_tls::HttpsConnector;
 use tokio::fs::{File, self};
 use tokio::io::{AsyncWriteExt, BufWriter};
 use crate::config::Configuration;
+use crate::protocol;
 use crate::util::progress_bar::ProgressBar;
 
 /// Downloads the jar from the configuration URL
 pub async fn download_server(config: &Configuration, target: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let server = &config.server;
-
+    let server = protocol::Protocol::parse_protocol(&config.server)?.generate_url().await;
+    
     let temp_dir = Path::new(".temp");
     if !temp_dir.exists() {
         fs::create_dir(temp_dir).await?;
@@ -71,4 +74,21 @@ pub async fn download(url: String, target: String) -> Result<(), Box<dyn std::er
     buffer.flush().await?;
 
     Ok(())
+}
+
+pub async fn fetch_bytes(url: hyper::Uri) -> Result<BytesMut, Box<dyn Error>> {
+    let https = HttpsConnector::new();
+    let client = Client::builder()
+        .build::<_, hyper::Body>(https);
+    
+    let mut res = client.follow_redirects().get(url).await?;
+    let mut buf = BytesMut::with_capacity(2048);
+    while let Some(chunk) = res.body_mut().data().await {
+        let bytes = &chunk?;
+        if bytes.len() > buf.remaining() {
+            buf.reserve(1024);
+        }
+        buf.put_slice(&bytes[..])
+    }
+    Ok(buf)
 }

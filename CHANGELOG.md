@@ -1,3 +1,13 @@
+# 2.1.0
+- Remove AutoReloader from the default plugins list
+- Add `save-config` flag
+- Remove unnecessary external urls
+- Add protocols feature
+- Internal paper-api support
+
+# 2.0.2
+- Default Paper Version => 1.19.2
+
 # 2.0.1
 - Default Paper Version => 1.18.2
 
