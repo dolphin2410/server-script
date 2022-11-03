@@ -25,7 +25,10 @@ pub struct Cli {
     pub no_update: bool,
 
     #[clap(long)]
-    pub save_config: bool
+    pub save_config: bool,
+
+    #[clap(long)]
+    pub show_ip: bool
 }
 
 pub fn parse() -> Cli {

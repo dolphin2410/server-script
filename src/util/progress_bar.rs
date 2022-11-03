@@ -44,12 +44,12 @@ impl ProgressBar {
 
         let finished_bar = (ratio * (self.len as f32)) as i32;
         print!("\r[");
-        logger::log_raw(&format!("{}", "#".repeat(max(finished_bar as usize, 0))), Some(Color::White), Some(Color::White));
-        logger::log_raw(&format!("{}", "-".repeat((self.len - finished_bar) as usize)), Some(Color::White), None);
+        logger::log_raw("#".repeat(max(finished_bar as usize, 0)).as_str(), Some(Color::White), Some(Color::White));
+        logger::log_raw("-".repeat((self.len - finished_bar) as usize).as_str(), Some(Color::White), None);
         print!("] {}% ", (ratio * 100.0) as i32);
     }
 
     pub fn clear_text(&mut self) {
-        print!("\n");
+        println!();
     }
 }

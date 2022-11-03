@@ -1,40 +1,31 @@
 use std::path::Path;
 use std::process::{Command, Stdio};
+use local_ip_address::local_ip;
 use termcolor::Color;
 use tokio::fs;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
 
-#[cfg(target_os = "windows")]
-fn windows() {
-    use std::ptr;
-    use winapi::um::wincon::GetConsoleWindow;
-    use winapi::um::winuser::SetWindowTextA;
-    use std::ffi::CString;
-
-    let window = unsafe { GetConsoleWindow() };
-    if window != ptr::null_mut() {
-        unsafe {
-            let cstr = CString::new("Server Script").unwrap();
-            SetWindowTextA(window, cstr.as_ptr());
-            
-        }
-    }
-}
-
-#[cfg(not(target_os = "windows"))]
-fn windows() {
-
-}
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
-    if cfg!(target_os = "windows") {
-        windows()
+    #[cfg(target_os = "windows")]
+    {
+        use winapi::um::wincon::GetConsoleWindow;
+        use winapi::um::winuser::SetWindowTextA;
+        use std::ffi::CString;
+
+        let window = unsafe { GetConsoleWindow() };
+        if window.is_null() {
+            unsafe {
+                let cstr = CString::new("Server Script").unwrap();
+                SetWindowTextA(window, cstr.as_ptr());
+                
+            }
+        }
     }
 
     print!("[Logger] ");
-    logger::log("Running server-script v2.0.1", Some(Color::Cyan), None);
+    logger::log("Running server-script v2.2.0", Some(Color::Cyan), None);
     print!("[Logger] ");
     logger::log("Report bugs here: https://github.com/dolphin2410/server-script", Some(Color::Cyan), None);
 
@@ -44,6 +35,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut configuration = config::load_config().await?;
 
     configuration.apply(&cli).await;
+
+    if configuration.show_ip {
+        if let Ok(ip) = local_ip() {
+            println!("Your machine's IP is {}", ip)
+        }
+    }
 
     let jarfile = "server.jar";
 
@@ -56,6 +53,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let executable = java_util::find_executable();
 
+    if executable.is_none() {
+        panic!("Java Executable was not found.");
+    }
+
+    let executable = executable.unwrap();
+
     let args = runner_util::default_args(jarfile, &configuration);
 
     loop {
@@ -65,8 +68,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         // Download plugins
-        for plugin in configuration.plugins.to_vec() {
-            let file_name = plugin.split("/").last().unwrap();
+        for plugin in &configuration.plugins {
+            let file_name = plugin.split('/').last().unwrap();
             web::download(plugin.clone(),format!("plugins/{}", file_name)).await?;
         }
 

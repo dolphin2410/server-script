@@ -34,6 +34,9 @@ pub struct Configuration {
 
     #[serde(default = "Vec::new")]
     pub jvm_args: Vec<String>,
+
+    #[serde(default = "bool_true")]
+    pub show_ip: bool
 }
 
 impl Configuration {
@@ -50,6 +53,7 @@ impl Configuration {
         if cli.no_update {
             self.no_update = cli.no_update;
         }
+        self.show_ip = cli.show_ip;
 
         if cli.save_config {
             save_config(self.clone()).await.unwrap();
@@ -79,6 +83,10 @@ pub fn debug_port() -> i32 {
 /// The default plugins
 pub fn default_plugins() -> Vec<String> {
     Vec::<String>::new().into_iter().map(String::from).collect()
+}
+
+pub fn bool_true() -> bool {
+    true
 }
 
 /// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.

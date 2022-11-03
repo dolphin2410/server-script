@@ -24,7 +24,7 @@ impl Protocol {
         match split[0].to_lowercase().as_str() {
             "http" | "https" => Ok(Protocol::HTTP { url: split[1].to_string() }),
             "paperapi" | "paper_api" => {
-                let data = split[1].split(":").collect::<Vec<_>>();
+                let data = split[1].split(':').collect::<Vec<_>>();
                 // e.g) paper_api://1.19.2:122
                 if data.len() == 2 {
                     Ok(Protocol::PaperAPI { version: data[0].to_string(), build: Some(data[1].parse::<u32>()?) })
