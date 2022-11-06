@@ -53,7 +53,9 @@ impl Configuration {
         if cli.no_update {
             self.no_update = cli.no_update;
         }
-        self.show_ip = cli.show_ip;
+        if cli.show_ip {
+            self.show_ip = cli.show_ip;
+        }
 
         if cli.save_config {
             save_config(self.clone()).await.unwrap();
