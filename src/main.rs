@@ -17,9 +17,11 @@ const LOCAL_SERVER_PATH: &str = "server.jar";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     #[cfg(target_os = "windows")]
-    unsafe { 
-        SetConsoleTitleA(PCSTR("Server Script".as_ptr()));
-        println!(); // todo fix this
+    {
+        unsafe { 
+            SetConsoleTitleA(PCSTR("Server Script".as_ptr()));
+            println!(); // todo fix this
+        }
     }
 
     let cli = cli::Cli::parse();
