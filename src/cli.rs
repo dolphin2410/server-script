@@ -1,36 +1,42 @@
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[clap(about = "Server-Script!", version = "0.0.1", author = "dolphin2410")]
+#[clap(about = "Server-Script", author = "dolphin2410", version)]
+/// Server Script CLI
 pub struct Cli {
-    #[clap(long, default_value_t = crate::config::default_server())]
-    pub server: String,
+    #[clap(long)]
+    /// the server url notation [using http(s) or paper_api]
+    pub server: Option<String>,
 
     #[clap(long)]
-    pub debug: bool,
-
-    #[clap(long, default_value_t = crate::config::debug_port())]
-    pub debug_port: i32,
+    /// Debug?
+    pub debug: Option<bool>,
 
     #[clap(long)]
-    pub backup: bool,
+    /// Debug Port
+    pub debug_port: Option<i32>,
 
     #[clap(long)]
-    pub restart: bool,
-
-    #[clap(long, default_value_t = crate::config::memory())]
-    pub memory: i32,
+    /// Backup after server closes?
+    pub backup: Option<bool>,
 
     #[clap(long)]
-    pub no_update: bool,
+    /// Restart automatically after server close?
+    pub restart: Option<bool>,
 
     #[clap(long)]
-    pub save_config: bool,
+    /// Memory [GB]
+    pub memory: Option<i32>,
 
     #[clap(long)]
-    pub show_ip: bool
-}
+    /// Don't update paper server on every run
+    pub no_update: Option<bool>,
 
-pub fn parse() -> Cli {
-    Cli::parse()
+    #[clap(long)]
+    /// Save CLI config to server.conf.json?
+    pub save_config: Option<bool>,
+
+    #[clap(long)]
+    /// Show IP on run?
+    pub show_ip: Option<bool>
 }

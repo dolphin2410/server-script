@@ -3,31 +3,22 @@ on: [push]
 name: Build
 
 jobs:
-  windows:
-    name: Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: build
-        run: cargo build --release
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: windows
-          path: target/release/server-script.exe
+  build:
+    strategy:
+      matrix: 
+        include:
+          - os: windows-latest
+            artifact: windows
+            filename: server-script.exe
+          - os: macos-latest
+            artifact: darwin
+            filename: server-script
+          - os: ubuntu-latest
+            artifact: linux
+            filename: server-script
 
-  mac:
-    name: MacOS
-    runs-on: macos-latest
+    name: ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -39,38 +30,17 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
       - name: build
         run: cargo build --release
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: darwin
-          path: target/release/server-script
-
-  ubuntu:
-    name: Linux
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: build
-        run: cargo build --release
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: linux
-          path: target/release/server-script
+          name: ${{ matrix.artifact }}
+          path: target/release/${{ matrix.filename }}
 
   upload:
-    needs: [ubuntu, mac, windows]
+    needs: [linux, darwin, windows]
     name: Upload Artifacts
     runs-on: ubuntu-latest
     steps:

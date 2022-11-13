@@ -1,65 +1,59 @@
+use std::fs::File;
+use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use bytes::BytesMut;
+use clap::Parser;
 use local_ip_address::local_ip;
+use server_script::util::logger::LogStream;
 use termcolor::Color;
 use tokio::fs;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
+use windows::Win32::System::Console::SetConsoleTitleA;
+use windows::core::PCSTR;
+
+const LOCAL_SERVER_PATH: &str = "server.jar";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-
     #[cfg(target_os = "windows")]
-    {
-        use winapi::um::wincon::GetConsoleWindow;
-        use winapi::um::winuser::SetWindowTextA;
-        use std::ffi::CString;
-
-        let window = unsafe { GetConsoleWindow() };
-        if window.is_null() {
-            unsafe {
-                let cstr = CString::new("Server Script").unwrap();
-                SetWindowTextA(window, cstr.as_ptr());
-                
-            }
-        }
+    unsafe { 
+        SetConsoleTitleA(PCSTR("Server Script".as_ptr()));
+        println!(); // todo fix this
     }
 
-    print!("[Logger] ");
-    logger::log("Running server-script v2.2.1", Some(Color::Cyan), None);
-    print!("[Logger] ");
-    logger::log("Report bugs here: https://github.com/dolphin2410/server-script", Some(Color::Cyan), None);
+    let cli = cli::Cli::parse();
 
-    let cli = cli::parse();
-
-    // Loads the config
     let mut configuration = config::load_config().await?;
 
     configuration.apply(&cli).await;
 
+    let mut log_stream = LogStream::with_colors(Some(Color::Cyan), None);
+    log_stream.add_header("[Logger] ".to_string());
+
+    log_stream.logln(format!("Running server-script v{}", env!("CARGO_PKG_VERSION"))).unwrap();
+    log_stream.logln("Report bugs here: https://github.com/dolphin2410/server-script").unwrap();
+
     if configuration.show_ip {
         if let Ok(ip) = local_ip() {
-            println!("Your machine's IP is {}", ip)
+            log_stream.logln(format!("Your machine's IP is {}", ip)).unwrap();
         }
     }
 
-    let jarfile = "server.jar";
-
-    let jar_path = Path::new(jarfile);
+    let jar_path = Path::new(LOCAL_SERVER_PATH);
+    let mut jar_buf = BytesMut::with_capacity(1024 * 1024);    // a megabyte
 
     if !jar_path.exists() || !configuration.no_update {
         // Download the jar
-        web::download_server(&configuration, jarfile).await.unwrap();
+        web::download_server(&configuration, &mut jar_buf).await.unwrap();
+        File::create(LOCAL_SERVER_PATH)?.write_all(&jar_buf[..])?;
     }
 
-    let executable = java_util::find_executable();
+    let executable = java_util::find_executable().expect("Java executable wasn't found.");
 
-    if executable.is_none() {
-        panic!("Java Executable was not found.");
-    }
+    let args = runner_util::default_args(LOCAL_SERVER_PATH, &configuration);
 
-    let executable = executable.unwrap();
-
-    let args = runner_util::default_args(jarfile, &configuration);
+    let mut plugin_buffer = BytesMut::with_capacity(1024 * 1024); // a megabyte
 
     loop {
         let plugins_path = Path::new("plugins");
@@ -68,20 +62,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         // Download plugins
-        for plugin in &configuration.plugins {
-            let file_name = plugin.split('/').last().unwrap();
-            web::download(plugin.clone(),format!("plugins/{}", file_name)).await?;
+        for plugin_url in &configuration.plugins {
+            let file_name = plugin_url.as_str().split('/').last().expect("Invalid Plugin URL"); // todo this isn't a great way to name plugins
+            web::download(plugin_url.as_str(), &mut plugin_buffer).await?;
+
+            File::create(file_name)?.write_all(&plugin_buffer[..])?;
+            plugin_buffer.clear();
         }
 
         // Execute the program
         Command::new(&executable)
             .args(&args)
-            .stdout(Stdio::inherit())
+            .stdout(Stdio::inherit())   // Inherit cmd interface
             .spawn()
             .unwrap().wait().unwrap();
 
         if configuration.backup {
-            logger::log("Starting Backup...", None, None);
+            logger::color_println("Starting Backup...", None, None);
             backup::backup().await?;
         }
 
@@ -89,10 +86,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
             break;
         }
 
-        logger::log("Restarting...", None, None);
+        logger::color_println("Restarting...", None, None);
     }
 
-    logger::log("Exiting...", None, None);
+    logger::color_println("Exiting...", None, None);
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use server_script::util::logger;
+    use termcolor::Color;
+
+    #[test]
+    fn test() {
+        logger::color_print("None foreground", None, Some(Color::Black));
+    }
 }

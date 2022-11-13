@@ -1,94 +1,62 @@
 use std::error::Error;
-use std::path::Path;
-use bytes::{BytesMut, Buf, BufMut};
+use bytes::{BytesMut, BufMut};
 use follow_redirects::ClientExt;
 use hyper::Client;
 use hyper::body::HttpBody;
 use hyper::header::CONTENT_LENGTH;
 use hyper_tls::HttpsConnector;
-use tokio::fs::{File, self};
-use tokio::io::{AsyncWriteExt, BufWriter};
 use crate::config::Configuration;
 use crate::protocol;
 use crate::util::progress_bar::ProgressBar;
 
 /// Downloads the jar from the configuration URL
-pub async fn download_server(config: &Configuration, target: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let server = protocol::Protocol::parse_protocol(&config.server)?.generate_url().await;
-    
-    let temp_dir = Path::new(".temp");
-    if !temp_dir.exists() {
-        fs::create_dir(temp_dir).await?;
-    }
-
-    let target_file = Path::new(target);
-    let path_buf = temp_dir.join(target_file.file_name().unwrap());
-    let temp_target_file = Path::new(path_buf.as_os_str());
-
-    let mut buffer = BufWriter::new(File::create(temp_target_file).await?);
-
-    let https = HttpsConnector::new();
+pub async fn download_server(config: &Configuration, buf: &mut BytesMut) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::builder()
-        .build::<_, hyper::Body>(https);
-    
-    let clip = server.parse()?;
+        .build::<_, hyper::Body>(HttpsConnector::new());
 
-    let mut response = client.follow_redirects().get(clip).await?;
-    let total = response.headers()[CONTENT_LENGTH].to_str().unwrap().parse::<f32>()?;
+    let server = protocol::Protocol::parse_protocol(&config.server)?.generate_url().await.parse()?;
 
-    let mut bar = ProgressBar::new(total as i32);
-    let mut read = 0;
+    let mut response = client.follow_redirects().get(server).await?;
+
+    let total = response.headers()[CONTENT_LENGTH].to_str().unwrap().parse::<u64>()?;
+
+    let mut bar = ProgressBar::new(total);
 
     while let Some(chunk) = response.body_mut().data().await {
-        let chunk = &chunk?;
-        read += chunk.len();
-        buffer.write_all(chunk).await?;
-        bar.set(read as i32);
+        buf.put(&chunk?[..]);
+        bar.set_cursor(buf.len() as u64);
         bar.print();
     }
 
-    buffer.flush().await?;
-    let _ = fs::copy(temp_target_file, target_file).await?;
-
-    // Exit Carriage Return
     bar.clear_text();
     Ok(())
 }
 
 /// Downloads the file from the url and saves it to the target
-pub async fn download(url: String, target: String) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let mut buffer = BufWriter::new(File::create(&target).await?);
-
-    let https = HttpsConnector::new();
+pub async fn download(url: &str, target: &mut BytesMut) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = Client::builder()
-        .build::<_, hyper::Body>(https);
+        .build::<_, hyper::Body>(HttpsConnector::new());
     
     let uri = url.parse()?;
 
     let mut response = client.follow_redirects().get(uri).await?;
 
     while let Some(chunk) = response.body_mut().data().await {
-        buffer.write_all(&chunk?).await?;
+        target.put(&chunk?[..]);
     }
-
-    buffer.flush().await?;
 
     Ok(())
 }
 
-pub async fn fetch_bytes(url: hyper::Uri) -> Result<BytesMut, Box<dyn Error>> {
-    let https = HttpsConnector::new();
+/// Fetch data from the web
+pub async fn fetch_bytes(url: hyper::Uri, buffer: &mut BytesMut) -> Result<(), Box<dyn Error>> {
     let client = Client::builder()
-        .build::<_, hyper::Body>(https);
+        .build::<_, hyper::Body>(HttpsConnector::new());
     
     let mut res = client.follow_redirects().get(url).await?;
-    let mut buf = BytesMut::with_capacity(2048);
     while let Some(chunk) = res.body_mut().data().await {
-        let bytes = &chunk?;
-        if bytes.len() > buf.remaining() {
-            buf.reserve(1024);
-        }
-        buf.put_slice(&bytes[..])
+        buffer.put(&chunk?[..])
     }
-    Ok(buf)
+
+    Ok(())
 }

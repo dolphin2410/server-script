@@ -9,67 +9,83 @@ use crate::cli::Cli;
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Configuration {
     #[serde(default = "default_server")]
+    /// The server url notation [using http(s) or paper_api]
     pub server: String,
 
     #[serde(default = "bool::default")]
+    /// Debug?
     pub debug: bool,
 
     #[serde(default = "debug_port")]
+    /// Debug Port?
     pub debug_port: i32,
 
     #[serde(default = "bool::default")]
+    /// Backup after server close?
     pub backup: bool,
 
     #[serde(default = "bool::default")]
+    /// Restart after server close?
     pub restart: bool,
 
     #[serde(default = "bool::default")]
+    /// Don't update server on every run?
     pub no_update: bool,
 
     #[serde(default = "memory")]
+    /// Memory
     pub memory: i32,
 
     #[serde(default = "default_plugins")]
+    /// Plugins to install before run
     pub plugins: Vec<String>,
 
     #[serde(default = "Vec::new")]
+    /// JVM args
     pub jvm_args: Vec<String>,
 
     #[serde(default = "bool_true")]
+    /// Show ip on run?
     pub show_ip: bool
 }
 
 impl Configuration {
+    /// Apply CLI configuration to the current configuration
     pub async fn apply(&mut self, cli: &Cli) {
-        self.server = cli.server.clone();
-        if cli.debug {
-            self.debug = cli.debug;
-        }
-        self.debug_port = cli.debug_port;
-        if cli.backup {
-            self.backup = cli.backup;
-        }
-        self.memory = cli.memory;
-        if cli.no_update {
-            self.no_update = cli.no_update;
-        }
-        if cli.show_ip {
-            self.show_ip = cli.show_ip;
+        self.server = cli.server.clone().unwrap_or_else(default_server);
+
+        if let Some(cli_debug) = cli.debug {
+            self.debug = cli_debug;
         }
 
-        if cli.save_config {
+        if let Some(cli_debug_port) = cli.debug_port {
+            self.debug_port = cli_debug_port;
+        }
+
+        if let Some(cli_backup) = cli.backup {
+            self.backup = cli_backup;
+        }
+
+        if let Some(cli_memory) = cli.memory {
+            self.memory = cli_memory
+        }
+
+        if let Some(cli_no_update) = cli.no_update {
+            self.no_update = cli_no_update;
+        }
+        if let Some(cli_show_ip) = cli.show_ip {
+            self.show_ip = cli_show_ip;
+        }
+
+        if cli.save_config.unwrap_or(false) {
             save_config(self.clone()).await.unwrap();
         }
     }
 }
 
-pub fn default_version() -> String {
-    String::from("1.19.2")
-}
-
 /// The default server url
 pub fn default_server() -> String {
-    format!("paperapi://{}", default_version())
+    "paperapi://1.19.2".to_string()
 }
 
 /// The default memory in Gigabytes
@@ -87,6 +103,7 @@ pub fn default_plugins() -> Vec<String> {
     Vec::<String>::new().into_iter().map(String::from).collect()
 }
 
+/// TRUE
 pub fn bool_true() -> bool {
     true
 }
@@ -114,6 +131,7 @@ pub async fn load_config() -> Result<Configuration, std::io::Error> {
     Ok(data)
 }
 
+/// Saves Configuration to server.conf.json
 pub async fn save_config(config: Configuration) -> Result<(), std::io::Error> {
     let path = Path::new("server.conf.json");
     if !path.exists() {

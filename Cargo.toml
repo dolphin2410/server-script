@@ -1,6 +1,6 @@
 [package]
 name = "server-script"
-version = "2.2.1"
+version = "2.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,19 +11,19 @@ tokio = { version = "1", features = ["full"] }
 follow-redirects = { git = "https://github.com/stevenroose/rust-follow-redirects/", branch = "update-deps" }
 hyper-tls = "0.5.0"
 
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }  # Serde
+serde_json = "1.0"                                  # Serde JSON
 
-clap = { version = "3.0.0", features = ["derive"] }
+clap = { version = "3.0.0", features = ["derive"] } # CLI
 
-regex = "1.5.4"
-flate2 = "1.0.22"
-tar = "0.4.37"
-chrono = "0.4.19"
-termcolor = "1.1"
-bytes = "1.2.1"
+regex = "1.5.4"     # Regex
+flate2 = "1.0.22"   # Tar
+tar = "0.4.37"      # Tar
+chrono = "0.4.19"   # Time
+termcolor = "1.1"   # Colored Log
+bytes = "1.2.1"     # Buffers
 
-local-ip-address = "0.4.9"
+local-ip-address = "0.4.9"  # feature
 
 [target.'cfg(target_os = "windows")'.dependencies]
-winapi = {version = "0.3", features = ["wincon", "winuser"]}
+windows = { version = "0.43.0", features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation", "Win32_System_Console"] }

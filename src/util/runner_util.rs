@@ -4,7 +4,7 @@ use crate::util::java_util::jdk9_up;
 use crate::util::logger;
 
 /// Generates the default running arguments
-pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<String> {
+pub fn default_args(jarfile: &str, config: &Configuration) -> Vec<String> {
     let mut default = vec![
         format!("-Xmx{}G", config.memory).as_str(),
         format!("-Xms{}G", config.memory).as_str(),
@@ -27,7 +27,7 @@ pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<Stri
 
     default.append(
         &mut if config.memory < 12 {
-            logger::log("Using Aikar's standard memory options", Some(Color::Magenta), None);
+            logger::color_println("Using Aikar's standard memory options", Some(Color::Magenta), None);
             vec![
                 "-XX:G1NewSizePercent=30",
                 "-XX:G1MaxNewSizePercent=40",
@@ -36,7 +36,7 @@ pub fn default_args<'a>(jarfile: &'a str, config: &'a Configuration) -> Vec<Stri
                 "-XX:InitiatingHeapOccupancyPercent=15"
             ]
         } else {
-            logger::log("Using Aikar's advanced memory options", Some(Color::Magenta), None);
+            logger::color_println("Using Aikar's advanced memory options", Some(Color::Magenta), None);
             vec![
                 "-XX:G1NewSizePercent=40",
                 "-XX:G1MaxNewSizePercent=50",

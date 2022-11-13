@@ -1,3 +1,16 @@
+# 2.3.0
+- Major code optimization
+- Add documentation
+- Upgrade Logger
+- Resolve CLI issue
+- Better workflows
+
+# 2.2.1
+- fix local-ip bug
+
+# 2.2.0
+- add local-ip feature
+
 # 2.1.0
 - Remove AutoReloader from the default plugins list
 - Add `save-config` flag

@@ -2,12 +2,24 @@ use std::error::Error;
 
 use crate::util::paper_api;
 
+/// Protocol to generate static url
 pub enum Protocol {
-    HTTP { url: String },
-    PaperAPI { version: String, build: Option<u32> }
+    /// Raw Static URL
+    HTTP { 
+        /// The URL
+        url: String
+     },
+    /// PaperAPI dynamic URL
+    PaperAPI { 
+        /// The paper version
+        version: String, 
+        /// Paper build, defaults to latest if set to None
+        build: Option<u32>
+    }
 }
 
 impl Protocol {
+    /// Creates a static url based on the protocol
     pub async fn generate_url(&self) -> String {
         match &self {
             Protocol::HTTP { url } => {
@@ -19,6 +31,7 @@ impl Protocol {
         }
     }
 
+    /// Check if it is HTTP or PAPER_API
     pub fn parse_protocol(server: &str) -> Result<Protocol, Box<dyn Error + Send + Sync>> {
         let split = server.split("://").collect::<Vec<_>>();
         match split[0].to_lowercase().as_str() {
