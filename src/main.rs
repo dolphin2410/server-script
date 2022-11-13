@@ -9,8 +9,6 @@ use server_script::util::logger::LogStream;
 use termcolor::Color;
 use tokio::fs;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
-use windows::Win32::System::Console::SetConsoleTitleA;
-use windows::core::PCSTR;
 
 const LOCAL_SERVER_PATH: &str = "server.jar";
 
@@ -18,6 +16,8 @@ const LOCAL_SERVER_PATH: &str = "server.jar";
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     #[cfg(target_os = "windows")]
     {
+        use windows::Win32::System::Console::SetConsoleTitleA;
+        use windows::core::PCSTR;
         unsafe { 
             SetConsoleTitleA(PCSTR("Server Script".as_ptr()));
             println!(); // todo fix this
