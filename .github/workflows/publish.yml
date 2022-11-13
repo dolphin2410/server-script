@@ -17,7 +17,7 @@ jobs:
             artifact: linux
             filename: server-script
 
-    name: ${{ matrix.artifact }}
+    name: build
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
           path: target/release/${{ matrix.filename }}
 
   upload:
-    needs: [linux, darwin, windows]
+    needs: [build]
     name: Upload Artifacts
     runs-on: ubuntu-latest
     steps:
