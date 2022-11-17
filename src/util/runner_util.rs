@@ -22,7 +22,7 @@ pub fn default_args(jarfile: &str, config: &Configuration) -> Vec<String> {
         "-XX:MaxTenuringThreshold=1",
         "-Dusing.aikars.flags=https://mcflags.emc.gs",
         "-Daikars.new.flags=true",
-        "-Dcom.mojang.eula.agree=true"
+        // "-Dcom.mojang.eula.agree=true"
     ].into_iter().map(String::from).collect::<Vec<String>>();
 
     default.append(

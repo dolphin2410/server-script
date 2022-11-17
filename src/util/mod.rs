@@ -12,3 +12,6 @@ pub mod logger;
 
 /// The `paper_api` module is for converting versions and builds to a static url.
 pub mod paper_api;
+
+/// For eula
+pub mod eula;

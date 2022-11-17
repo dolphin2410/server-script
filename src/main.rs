@@ -5,6 +5,8 @@ use std::process::{Command, Stdio};
 use bytes::BytesMut;
 use clap::Parser;
 use local_ip_address::local_ip;
+use requestty::Question;
+use server_script::util::eula::{eula_agreed, agree_eula};
 use server_script::util::logger::LogStream;
 use termcolor::Color;
 use tokio::fs;
@@ -29,6 +31,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut configuration = config::load_config().await?;
 
     configuration.apply(&cli).await;
+
+    request_eula().await?;
 
     let mut log_stream = LogStream::with_colors(Some(Color::Cyan), None);
     log_stream.add_header("[Logger] ".to_string());
@@ -94,6 +98,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     logger::color_println("Exiting...", None, None);
 
     Ok(())
+}
+
+async fn request_eula() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    if !eula_agreed().await {
+        let q = Question::confirm("Will you agree to EULA?").default(true).build();
+        let answer = requestty::prompt_one(q)?;
+        if answer.as_bool().unwrap_or(false) {
+            agree_eula().await?;
+        } else {
+            return Err("You must agree to eula".into());
+        }
+    }
+
+    return Ok(())
 }
 
 #[cfg(test)]
