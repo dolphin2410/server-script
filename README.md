@@ -1,7 +1,7 @@
 # server-script
 ## 마인크래프트 서버 쉽게 실행하기 
 
-[![Build](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml/badge.svg)](https://github.com/dolphin2410/server-script/actions/workflows/rust.yml)
+[![Build](https://github.com/dolphin2410/server-script/actions/workflows/publish.yml/badge.svg)](https://github.com/dolphin2410/server-script/actions/workflows/publish.yml)
 
 ### 설정하기
 - CLI 및 JSON 기반 설정을 지원합니다
