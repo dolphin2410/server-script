@@ -73,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         // Download plugins
-        if (!no_wifi) {
+        if !no_wifi {
             for plugin_url in &configuration.plugins {
                 let file_name = plugin_url.as_str().split('/').last().expect("Invalid Plugin URL"); // todo this isn't a good way to name plugins
                 web::download(plugin_url.as_str(), &mut plugin_buffer).await?;
