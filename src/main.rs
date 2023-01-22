@@ -40,10 +40,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     log_stream.logln(format!("Running server-script v{}", env!("CARGO_PKG_VERSION"))).unwrap();
     log_stream.logln("Report bugs here: https://github.com/dolphin2410/server-script").unwrap();
 
-    if configuration.show_ip {
-        if let Ok(ip) = local_ip() {
+    let mut no_wifi = false;
+
+    if let Ok(ip) = local_ip() {
+        if configuration.show_ip {
             log_stream.logln(format!("Your machine's IP is {}", ip)).unwrap();
         }
+    } else {
+        configuration.no_update = true;
+        no_wifi = true;
     }
 
     let jar_path = Path::new(LOCAL_SERVER_PATH);
@@ -68,12 +73,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         }
 
         // Download plugins
-        for plugin_url in &configuration.plugins {
-            let file_name = plugin_url.as_str().split('/').last().expect("Invalid Plugin URL"); // todo this isn't a great way to name plugins
-            web::download(plugin_url.as_str(), &mut plugin_buffer).await?;
-
-            File::create(file_name)?.write_all(&plugin_buffer[..])?;
-            plugin_buffer.clear();
+        if (!no_wifi) {
+            for plugin_url in &configuration.plugins {
+                let file_name = plugin_url.as_str().split('/').last().expect("Invalid Plugin URL"); // todo this isn't a good way to name plugins
+                web::download(plugin_url.as_str(), &mut plugin_buffer).await?;
+    
+                File::create(file_name)?.write_all(&plugin_buffer[..])?;
+                plugin_buffer.clear();
+            }
         }
 
         // Execute the program
