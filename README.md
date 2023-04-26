@@ -16,7 +16,7 @@
 다음과 비슷하게 설정하세요.
 ```json
 {
-    "server": "http://clip.aroxu.me/download?mc_version=1.19.2",
+    "server": "paperapi://1.19.2",  // https://example.com/path/to/server.jar 도 사용 가능
     "debug": true,
     "debug_port": 8080,
     "backup": true,
@@ -38,7 +38,7 @@
 ***`server.conf.json`에서 설정하지 않고 CLI에서 직접 설정 및 실행할 수 있습니다. `server.conf.json`에 중복되는 설정이 있을때, 갈아엎습니다***
 - 서버 URL
 ```bash
-server-script.exe --server http://clip.aroxu.me/download?mc_version=1.19.2 # 서버 jar URL 설정
+server-script.exe --server paperapi://1.19.2 # 서버 jar URL 설정
 ```
 - 메모리
 ```bash

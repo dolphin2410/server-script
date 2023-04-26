@@ -52,7 +52,9 @@ pub struct Configuration {
 impl Configuration {
     /// Apply CLI configuration to the current configuration
     pub async fn apply(&mut self, cli: &Cli) {
-        self.server = cli.server.clone().unwrap_or_else(default_server);
+        if let Some(cli_server) = &cli.server {
+            self.server = cli_server.clone();
+        }
 
         if let Some(cli_debug) = cli.debug {
             self.debug = cli_debug;

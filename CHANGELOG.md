@@ -1,3 +1,6 @@
+# 2.4.0
+- Fix CLI-config conflict issue
+
 # 2.3.0
 - Major code optimization
 - Add documentation
