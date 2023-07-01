@@ -1,3 +1,6 @@
+# 2.4.1
+- Bump
+
 # 2.4.0
 - Fix CLI-config conflict issue
 

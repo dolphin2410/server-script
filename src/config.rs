@@ -87,7 +87,7 @@ impl Configuration {
 
 /// The default server url
 pub fn default_server() -> String {
-    "paperapi://1.19.2".to_string()
+    "paperapi://1.20.1".to_string()
 }
 
 /// The default memory in Gigabytes
