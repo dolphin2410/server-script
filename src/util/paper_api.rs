@@ -1,5 +1,4 @@
-use std::error::Error;
-
+use anyhow::Result;
 use bytes::{Buf, BytesMut};
 use serde::Deserialize;
 
@@ -23,11 +22,11 @@ struct BuildInfo {
 }
 
 /// Fetch paper url with specified version and build. If there isn't any builds, it will automatically find the latest one
-pub async fn fetch_paper(version: &str, build: &Option<u32>) -> Result<String, Box<dyn Error>> {
+pub async fn fetch_paper(version: &str, build: &Option<u32>) -> Result<String> {
     let builds_list = get_builds_list(version).await?;
 
     let build_index = if let Some(build) = build {
-        builds_list.iter().position(|x| &x.id == build).ok_or("Build not Found")?
+        builds_list.iter().position(|x| &x.id == build).ok_or(anyhow::anyhow!("Build not Found"))?
     } else {
         0
     };
@@ -36,7 +35,7 @@ pub async fn fetch_paper(version: &str, build: &Option<u32>) -> Result<String, B
 }
 
 /// Fetches the list of builds of the given version
-async fn get_builds_list(version: &str) -> Result<Vec<BuildInfo>, Box<dyn Error>> {
+async fn get_builds_list(version: &str) -> Result<Vec<BuildInfo>> {
     let builds_url = format!("https://fill.papermc.io/v3/projects/paper/versions/{version}/builds").parse::<hyper::Uri>()?;
     let mut buffer = BytesMut::with_capacity(1024);
     fetch_bytes(builds_url, &mut buffer).await?;

@@ -2,7 +2,7 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
 use tokio::fs::File;
-
+use anyhow::Result;
 use crate::cli::Cli;
 
 /// A struct of the server-script configurations. Serde will parse the configuration file with some default fields.
@@ -111,7 +111,7 @@ pub fn bool_true() -> bool {
 }
 
 /// Loads the `server.conf.json` file and deserializes it to the `Configuration` struct.
-pub async fn load_config() -> Result<Configuration, std::io::Error> {
+pub async fn load_config() -> Result<Configuration> {
     let path = Path::new("server.conf.json");
 
     // Create file if doesn't exists. Defaults to an empty object
@@ -134,7 +134,7 @@ pub async fn load_config() -> Result<Configuration, std::io::Error> {
 }
 
 /// Saves Configuration to server.conf.json
-pub async fn save_config(config: Configuration) -> Result<(), std::io::Error> {
+pub async fn save_config(config: Configuration) -> Result<()> {
     let path = Path::new("server.conf.json");
     if !path.exists() {
         let _ = File::create(&path).await?;

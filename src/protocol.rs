@@ -1,4 +1,4 @@
-use std::error::Error;
+use anyhow::Result;
 
 use crate::util::paper_api;
 
@@ -32,7 +32,7 @@ impl Protocol {
     }
 
     /// Check if it is HTTP or PAPER_API
-    pub fn parse_protocol(server: &str) -> Result<Protocol, Box<dyn Error + Send + Sync>> {
+    pub fn parse_protocol(server: &str) -> Result<Protocol> {
         let split = server.split("://").collect::<Vec<_>>();
         match split[0].to_lowercase().as_str() {
             "http" | "https" => Ok(Protocol::HTTP { url: split[1].to_string() }),
@@ -45,7 +45,7 @@ impl Protocol {
                     Ok(Protocol::PaperAPI { version: data[0].to_string(), build: None })
                 }
             },
-            _ => Err("Invalid Protocol".into())
+            _ => Err(anyhow::anyhow!("Invalid Protocol"))
         }
 
     }

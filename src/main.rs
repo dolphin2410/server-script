@@ -10,12 +10,13 @@ use server_script::util::eula::{eula_agreed, agree_eula};
 use server_script::util::logger::LogStream;
 use termcolor::Color;
 use tokio::fs;
+use anyhow::Result;
 use server_script::{backup, web, config, cli, util::{java_util, logger, runner_util}};
 
 const LOCAL_SERVER_PATH: &str = "server.jar";
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn main() -> Result<()> {
     #[cfg(target_os = "windows")]
     {
         use windows::Win32::System::Console::SetConsoleTitleA;
@@ -56,7 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     if !jar_path.exists() || !configuration.no_update {
         // Download the jar
-        web::download_server(&configuration, &mut jar_buf).await.unwrap();
+        web::download_server(&configuration, &mut jar_buf).await?;
         File::create(LOCAL_SERVER_PATH)?.write_all(&jar_buf[..])?;
     }
 
@@ -107,14 +108,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     Ok(())
 }
 
-async fn request_eula() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn request_eula() -> Result<()> {
     if !eula_agreed().await {
         let q = Question::confirm("Will you agree to EULA?").default(true).build();
         let answer = requestty::prompt_one(q)?;
         if answer.as_bool().unwrap_or(false) {
             agree_eula().await?;
         } else {
-            return Err("You must agree to eula".into());
+            return Err(anyhow::anyhow!("You must agree to eula"));
         }
     }
 

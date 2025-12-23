@@ -1,6 +1,7 @@
 use std::path::Path;
 
 use tokio::fs;
+use anyhow::Result;
 
 /// Check if eula is agreed
 pub async fn eula_agreed() -> bool {
@@ -24,7 +25,7 @@ pub async fn eula_agreed() -> bool {
 }
 
 /// Agree to eula
-pub async fn agree_eula() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn agree_eula() -> Result<()> {
     let path = Path::new("eula.txt");
     fs::write(path, b"eula=true").await?;
     Ok(())

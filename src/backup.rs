@@ -5,13 +5,14 @@ use flate2::Compression;
 use termcolor::Color;
 use tokio::fs;
 use tokio::fs::File;
+use anyhow::Result;
 use crate::util::logger;
 
 /// Backup the current directory. Excludes the following folders - `.backup` and `cache`
 /// The backup file format will be `.backup/YYYYMMDD-HHmmSS.tar.gz`.
 /// The backup process isn't stopped even if an element has an issue with compressing. 
 /// It skips the one with the error, but the error message is still printed
-pub async fn backup() -> Result<(), std::io::Error> {
+pub async fn backup() -> Result<()> {
     let backup_dir_path = Path::new(".backup"); // Check if backup folder exists
     if !backup_dir_path.exists() {
         fs::create_dir(backup_dir_path).await?;

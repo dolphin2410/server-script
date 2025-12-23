@@ -1,6 +1,6 @@
 use termcolor::{StandardStream, WriteColor, ColorSpec, Color};
 use std::{io::Write, fmt::Display};
-
+use anyhow::Result;
 
 /// Prints data to the console with the specified forground and background color
 /// This logs with a newline
@@ -67,13 +67,13 @@ impl LogStream {
     }
 
     /// Sets the foreground and background color
-    pub fn set_color(&mut self, color: ColorSpec) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn set_color(&mut self, color: ColorSpec) -> Result<()> {
         self.color = Some(color);
         Ok(())
     }
 
     /// Print using the current settings
-    pub fn log<T>(&mut self, data: T) -> Result<(), Box<dyn std::error::Error>> where T: Display {
+    pub fn log<T>(&mut self, data: T) -> Result<()> where T: Display {
         if let Some(header) = self.header.as_ref() {
             write!(self.out, "{}", header)?;
         }
@@ -88,7 +88,7 @@ impl LogStream {
     }
 
     /// Println using the current settings
-    pub fn logln<T>(&mut self, data: T) -> Result<(), Box<dyn std::error::Error>> where T: Display {
+    pub fn logln<T>(&mut self, data: T) -> Result<()> where T: Display {
         self.log(data)?;
         println!();
         Ok(())

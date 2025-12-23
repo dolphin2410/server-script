@@ -1,16 +1,18 @@
-use std::error::Error;
 use bytes::{BytesMut, BufMut};
 use follow_redirects::ClientExt;
 use hyper::Client;
 use hyper::body::HttpBody;
 use hyper::header::CONTENT_LENGTH;
 use hyper_tls::HttpsConnector;
+
+use anyhow::Result;
+
 use crate::config::Configuration;
 use crate::protocol;
 use crate::util::progress_bar::ProgressBar;
 
 /// Downloads the jar from the configuration URL
-pub async fn download_server(config: &Configuration, buf: &mut BytesMut) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn download_server(config: &Configuration, buf: &mut BytesMut) -> Result<()> {
     let client = Client::builder()
         .build::<_, hyper::Body>(HttpsConnector::new());
 
@@ -33,7 +35,7 @@ pub async fn download_server(config: &Configuration, buf: &mut BytesMut) -> Resu
 }
 
 /// Downloads the file from the url and saves it to the target
-pub async fn download(url: &str, target: &mut BytesMut) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+pub async fn download(url: &str, target: &mut BytesMut) -> Result<()> {
     let client = Client::builder()
         .build::<_, hyper::Body>(HttpsConnector::new());
     
@@ -49,7 +51,7 @@ pub async fn download(url: &str, target: &mut BytesMut) -> Result<(), Box<dyn st
 }
 
 /// Fetch data from the web
-pub async fn fetch_bytes(url: hyper::Uri, buffer: &mut BytesMut) -> Result<(), Box<dyn Error>> {
+pub async fn fetch_bytes(url: hyper::Uri, buffer: &mut BytesMut) -> Result<()> {
     let client = Client::builder()
         .build::<_, hyper::Body>(HttpsConnector::new());
     
