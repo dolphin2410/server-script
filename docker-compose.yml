@@ -1,0 +1,27 @@
+services:
+  # Linux ARMv7 (Raspberry Pi 32-bit etc.)
+  build-armv7:
+    build:
+      context: .
+      dockerfile: docker/armv7.Dockerfile
+    volumes:
+      - ./target/armv7-linux-release:/app
+      - /app/target
+
+  # Linux AArch64 (AWS Graviton, Raspberry Pi 4 64-bit)
+  build-aarch64:
+    build:
+      context: .
+      dockerfile: docker/aarch64.Dockerfile
+    volumes:
+      - ./target/aarch64-linux-release:/app
+      - /app/target
+
+  # Windows x64
+  build-win64:
+    build:
+      context: .
+      dockerfile: docker/win64.Dockerfile
+    volumes:
+      - ./target/win64-release:/app
+      - /app/target

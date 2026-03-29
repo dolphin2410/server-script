@@ -2,3 +2,4 @@ target/
 .idea/
 builder.bat
 debug/
+test/
